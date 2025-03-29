@@ -4,6 +4,7 @@ const { createUser, handleLogin, getUser,
 } = require('../controllers/userController');
 const auth = require('../middleware/auth');
 const delay = require('../middleware/delay');
+const { createAccounts, getAccounts, updateAccount, deleteAccount } = require('../controllers/accountController');
 
 const routerAPI = express.Router();
 
@@ -19,5 +20,9 @@ routerAPI.post("/login", handleLogin);
 routerAPI.get("/user", getUser);
 routerAPI.get("/account", delay, getAccount);
 
+routerAPI.post("/accounts", createAccounts);
+routerAPI.get("/accounts", getAccounts);
+routerAPI.put("/accounts", updateAccount);
+routerAPI.delete("/accounts", deleteAccount);
 
 module.exports = routerAPI; //export default
