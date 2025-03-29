@@ -1,13 +1,16 @@
 require("dotenv").config();
+const { name } = require("ejs");
 const jwt = require("jsonwebtoken");
 
+
 const auth = (req, res, next) => {
+
     const white_lists = ["/", "/register", "/login"];
     if (white_lists.find(item => '/v1/api' + item === req.originalUrl)) {
-        next();
+        return next();
     } else {
-        if (req?.headers?.authorization?.split(' ')?.[1]) {
-            const token = req.headers.authorization.split(' ')[1];
+        if (req.headers && req.headers.authorization) {
+            const token = req.headers.authorization.split(" ")[1];
 
             //verify token
             try {
@@ -15,22 +18,23 @@ const auth = (req, res, next) => {
                 req.user = {
                     email: decoded.email,
                     name: decoded.name,
-                    createdBy: "hoidanit"
+                    _id: decoded._id
                 }
-                console.log(">>> check token: ", decoded)
+                console.log("Token: ", decoded);
                 next();
             } catch (error) {
                 return res.status(401).json({
-                    message: "Token bị hết hạn/hoặc không hợp lệ"
-                })
+                    message: "Token hết hạn hoặc không hợp lệ"
+                });
             }
-
         } else {
+            //return exception
             return res.status(401).json({
-                message: "Bạn chưa truyền Access Token ở header/Hoặc token bị hết hạn"
-            })
+                message: "Unauthorized"
+            });
         }
     }
+
 }
 
 module.exports = auth;
