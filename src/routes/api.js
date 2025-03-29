@@ -5,6 +5,7 @@ const { createUser, handleLogin, getUser,
 const auth = require('../middleware/auth');
 const delay = require('../middleware/delay');
 const { createAccounts, getAccounts, updateAccount, deleteAccount } = require('../controllers/accountController');
+const { getCategories, createCategories, updateCategories, deleteCategories } = require('../controllers/categoryController');
 
 const routerAPI = express.Router();
 
@@ -24,5 +25,10 @@ routerAPI.post("/accounts", createAccounts);
 routerAPI.get("/accounts", getAccounts);
 routerAPI.put("/accounts", updateAccount);
 routerAPI.delete("/accounts", deleteAccount);
+
+routerAPI.get("/categories", getCategories);
+routerAPI.post("/categories", createCategories);
+routerAPI.put("/categories", updateCategories);
+routerAPI.delete("/categories", deleteCategories);
 
 module.exports = routerAPI; //export default
