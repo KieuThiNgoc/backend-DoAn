@@ -1,7 +1,5 @@
 const express = require('express');
-const { createUser, handleLogin, getUser,
-    getAccount
-} = require('../controllers/userController');
+const { createUser, handleLogin, getUser, getAccount } = require('../controllers/userController');
 const auth = require('../middleware/auth');
 const delay = require('../middleware/delay');
 const { createAccounts, getAccounts, updateAccount, deleteAccount } = require('../controllers/accountController');
@@ -12,13 +10,12 @@ const { getNotifications, markAsRead, deleteNotification } = require('../control
 const { getReportsBarChart, getReportsPieChart } = require('../controllers/reportController');
 const { getDashboardCards, getDashboardLineChart, getRecentTransaction } = require('../controllers/dashboardController');
 
-
 const routerAPI = express.Router();
 
 routerAPI.all("*", auth);
 
 routerAPI.get("/", (req, res) => {
-    return res.status(200).json("Hello world api")
+    return res.status(200).json("Hello world");
 })
 
 routerAPI.post("/register", createUser);
@@ -58,4 +55,4 @@ routerAPI.get("/dashboard/cards", getDashboardCards);
 routerAPI.get("/dashboard/linechart", getDashboardLineChart);
 routerAPI.get("/dashboard/recenttransactions", getRecentTransaction);
 
-module.exports = routerAPI; //export default
+module.exports = routerAPI;

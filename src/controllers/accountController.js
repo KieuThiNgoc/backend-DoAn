@@ -1,7 +1,4 @@
-const { updateAccountService } = require("../services/accountService");
-const { deleteAccountService } = require("../services/accountService");
-const { getAccountService } = require("../services/accountService");
-const { createAccountService } = require("../services/accountService");
+const { createAccountService, getAccountService, updateAccountService, deleteAccountService } = require("../services/accountService");
 
 
 const createAccounts = async (req, res) => {

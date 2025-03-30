@@ -11,7 +11,6 @@ const port = process.env.PORT || 8888;
 
 //config cors
 app.use(cors());
-
 //config req.body
 app.use(express.json()) // for json
 app.use(express.urlencoded({ extended: true })) // for form data
@@ -24,8 +23,8 @@ webAPI.get("/", getHomepage);
 
 //khai báo route
 app.use('/', webAPI);
-
 app.use('/v1/api/', apiRoutes);
+
 
 
 (async () => {
