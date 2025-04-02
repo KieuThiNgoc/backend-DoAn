@@ -8,7 +8,7 @@ const { getTransactions, createTransactions, updateTransactions, deleteTransacti
 const { getBudgets, createBudgets, updateBudgets, deleteBudgets } = require('../controllers/budgetController');
 const { getNotifications, markAsRead, deleteNotification } = require('../controllers/notificationController');
 const { getReportsBarChart, getReportsPieChart } = require('../controllers/reportController');
-const { getDashboardCards, getDashboardLineChart, getRecentTransaction } = require('../controllers/dashboardController');
+const { getDashboardTable, getDashboardBarChart } = require('../controllers/dashboardController');
 
 const routerAPI = express.Router();
 
@@ -51,8 +51,7 @@ routerAPI.delete("/notifications/:id", deleteNotification);
 routerAPI.get("/reports/bar", getReportsBarChart);
 routerAPI.get("/reports/pie", getReportsPieChart);
 
-routerAPI.get("/dashboard/cards", getDashboardCards);
-routerAPI.get("/dashboard/linechart", getDashboardLineChart);
-routerAPI.get("/dashboard/recenttransactions", getRecentTransaction);
+routerAPI.get("/dashboard/table", getDashboardTable);
+routerAPI.get("/dashboard/barchart", getDashboardBarChart);
 
 module.exports = routerAPI;

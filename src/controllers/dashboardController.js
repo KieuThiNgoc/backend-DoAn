@@ -1,26 +1,19 @@
-const { getDashboardCardSevice, getDashboardLineChartSevice, getDashboardRecentTransactionSevice } = require("../services/dashboardService");
+const { getDashboardTableSevice, getDashboardBarChartSevice } = require("../services/dashboardService");
 
-const getDashboardCards = async (req, res) => {
-    const { period = 'day' } = req.query;
+const getDashboardTable = async (req, res) => {
+    const { year = new Date().getFullYear() } = req.query;
     const userId = req.user._id;
-    const data = await getDashboardCardSevice(userId, period);
+    const data = await getDashboardTableSevice(userId, year);
     return res.status(200).json(data);
 };
 
-const getDashboardLineChart = async (req, res) => {
-    const { period = 'day' } = req.query;
+const getDashboardBarChart = async (req, res) => {
+    const { year = new Date().getFullYear() } = req.query;
     const userId = req.user._id;
-    const data = await getDashboardLineChartSevice(userId, period);
-    return res.status(200).json(data);
-};
-
-const getRecentTransaction = async (req, res) => {
-    const userId = req.user._id;
-    const { limit } = req.query;
-    const data = await getDashboardRecentTransactionSevice(userId, Number(limit) || 5);
+    const data = await getDashboardBarChartSevice(userId, year);
     return res.status(200).json(data);
 };
 
 module.exports = {
-    getDashboardCards, getDashboardLineChart, getRecentTransaction
+    getDashboardTable, getDashboardBarChart
 }
