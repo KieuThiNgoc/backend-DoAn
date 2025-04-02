@@ -69,17 +69,23 @@ const getReportByCategoryService = async (userId, startDate, endDate) => {
         const start = new Date(startDate);
         const end = new Date(endDate);
 
-        let matchStage = {
+        // Match stage cho expense
+        let matchStageExpense = {
             userId: new mongoose.Types.ObjectId(userId),
             type: 'expense',
-            date: {
-                $gte: start,
-                $lte: end
-            }
+            date: { $gte: start, $lte: end }
         };
 
+        // Match stage cho income
+        let matchStageIncome = {
+            userId: new mongoose.Types.ObjectId(userId),
+            type: 'income',
+            date: { $gte: start, $lte: end }
+        };
+
+        // Tính phân bổ chi tiêu theo danh mục
         const expenseByCategory = await Transactions.aggregate([
-            { $match: matchStage },
+            { $match: matchStageExpense },
             {
                 $lookup: {
                     from: 'categories',
@@ -107,27 +113,66 @@ const getReportByCategoryService = async (userId, startDate, endDate) => {
             { $sort: { amount: -1 } }
         ]);
 
-        // Tính tổng chi tiêu
-        const totalExpense = expenseByCategory.reduce((sum, cat) => sum + cat.amount, 0);
+        // Tính phân bổ thu nhập theo danh mục
+        const incomeByCategory = await Transactions.aggregate([
+            { $match: matchStageIncome },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'categoryId',
+                    foreignField: '_id',
+                    as: 'category'
+                }
+            },
+            { $unwind: '$category' },
+            {
+                $group: {
+                    _id: '$categoryId',
+                    name: { $first: '$category.name' },
+                    amount: { $sum: '$amount' }
+                }
+            },
+            {
+                $project: {
+                    categoryId: '$_id',
+                    name: 1,
+                    amount: 1,
+                    _id: 0
+                }
+            },
+            { $sort: { amount: -1 } }
+        ]);
 
-        // Thêm tỷ lệ phần trăm cho mỗi danh mục
-        const result = expenseByCategory.map(cat => ({
+        // Tính tổng chi và tổng thu
+        const totalExpense = expenseByCategory.reduce((sum, cat) => sum + cat.amount, 0);
+        const totalIncome = incomeByCategory.reduce((sum, cat) => sum + cat.amount, 0);
+
+        // Thêm phần trăm cho chi tiêu
+        const expenseResult = expenseByCategory.map(cat => ({
             ...cat,
             percentage: totalExpense > 0 ? (cat.amount / totalExpense * 100).toFixed(2) : 0
         }));
 
+        // Thêm phần trăm cho thu nhập
+        const incomeResult = incomeByCategory.map(cat => ({
+            ...cat,
+            percentage: totalIncome > 0 ? (cat.amount / totalIncome * 100).toFixed(2) : 0
+        }));
+
         return {
             EC: 0,
-            EM: result.length > 0 ? "Lấy báo cáo thành công" : "Không có dữ liệu trong khoảng thời gian này",
+            EM: (expenseResult.length > 0 || incomeResult.length > 0) ? "Lấy báo cáo thành công" : "Không có dữ liệu trong khoảng thời gian này",
             DT: {
-                byCategory: result,
-                totalExpense: totalExpense
+                expenseByCategory: expenseResult,
+                incomeByCategory: incomeResult,
+                totalExpense: totalExpense,
+                totalIncome: totalIncome
             }
         };
     } catch (error) {
         console.log("Lỗi khi lấy danh sách:", error);
         return null;
     }
-}
+};
 
 module.exports = { getReportByDateService, getReportByCategoryService };
