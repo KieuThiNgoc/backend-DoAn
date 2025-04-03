@@ -69,21 +69,19 @@ const getReportByCategoryService = async (userId, startDate, endDate) => {
         const start = new Date(startDate);
         const end = new Date(endDate);
 
-        // Match stage cho expense
         let matchStageExpense = {
             userId: new mongoose.Types.ObjectId(userId),
             type: 'expense',
             date: { $gte: start, $lte: end }
         };
 
-        // Match stage cho income
         let matchStageIncome = {
             userId: new mongoose.Types.ObjectId(userId),
             type: 'income',
             date: { $gte: start, $lte: end }
         };
 
-        // Tính phân bổ chi tiêu theo danh mục
+        // Tính phân bổ chi tiêu theo danh mục + chi tiết giao dịch
         const expenseByCategory = await Transactions.aggregate([
             { $match: matchStageExpense },
             {
@@ -99,7 +97,14 @@ const getReportByCategoryService = async (userId, startDate, endDate) => {
                 $group: {
                     _id: '$categoryId',
                     name: { $first: '$category.name' },
-                    amount: { $sum: '$amount' }
+                    amount: { $sum: '$amount' },
+                    transactions: {
+                        $push: {
+                            date: '$date',
+                            amount: '$amount',
+                            description: '$description' // Thêm các trường bạn muốn hiển thị
+                        }
+                    }
                 }
             },
             {
@@ -107,13 +112,14 @@ const getReportByCategoryService = async (userId, startDate, endDate) => {
                     categoryId: '$_id',
                     name: 1,
                     amount: 1,
+                    transactions: 1,
                     _id: 0
                 }
             },
             { $sort: { amount: -1 } }
         ]);
 
-        // Tính phân bổ thu nhập theo danh mục
+        // Tính phân bổ thu nhập theo danh mục + chi tiết giao dịch
         const incomeByCategory = await Transactions.aggregate([
             { $match: matchStageIncome },
             {
@@ -129,7 +135,14 @@ const getReportByCategoryService = async (userId, startDate, endDate) => {
                 $group: {
                     _id: '$categoryId',
                     name: { $first: '$category.name' },
-                    amount: { $sum: '$amount' }
+                    amount: { $sum: '$amount' },
+                    transactions: {
+                        $push: {
+                            date: '$date',
+                            amount: '$amount',
+                            description: '$description' // Thêm các trường bạn muốn hiển thị
+                        }
+                    }
                 }
             },
             {
@@ -137,6 +150,7 @@ const getReportByCategoryService = async (userId, startDate, endDate) => {
                     categoryId: '$_id',
                     name: 1,
                     amount: 1,
+                    transactions: 1,
                     _id: 0
                 }
             },
