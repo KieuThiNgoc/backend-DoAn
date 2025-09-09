@@ -1,22 +1,20 @@
-require("dotenv").config();
-
+require('dotenv').config();
 const User = require("../models/user");
 const bcrypt = require('bcrypt');
-const jwt = require("jsonwebtoken");
-
+const jwt = require('jsonwebtoken');
 const saltRounds = 10;
+
 
 const createUserService = async (name, email, password) => {
     try {
         //check user exist
         const user = await User.findOne({ email });
         if (user) {
-            console.log(`>>> user exist, chọn 1 email khác: ${email}`);
+            console.log(`>> user exist, chọn 1 email khác: ${email}`);
             return null;
         }
-
-        //hash user password
-        const hashPassword = await bcrypt.hash(password, saltRounds)
+        //hash password
+        const hashPassword = await bcrypt.hash(password, saltRounds);
         //save user to database
         let result = await User.create({
             name: name,
@@ -42,37 +40,40 @@ const loginService = async (email1, password) => {
             if (!isMatchPassword) {
                 return {
                     EC: 2,
-                    EM: "Email/Password không hợp lệ"
-                }
+                    EM: "Email hoặc Password không hợp lệ!"
+                };
             } else {
                 //create an access token
                 const payload = {
                     email: user.email,
-                    name: user.name
+                    name: user.name,
+                    _id: user._id.toString()
                 }
 
                 const access_token = jwt.sign(
                     payload,
                     process.env.JWT_SECRET,
                     {
-                        expiresIn: process.env.JWT_EXPIRE
+                        expiresIn: process.env.JWT_EXPIRES_IN
                     }
-                )
+                );
                 return {
                     EC: 0,
                     access_token,
                     user: {
+                        name: user.name,
                         email: user.email,
-                        name: user.name
+                        _id: user._id.toString()
                     }
                 };
             }
         } else {
             return {
                 EC: 1,
-                EM: "Email/Password không hợp lệ"
-            }
+                EM: "Email hoặc Password không hợp lệ!"
+            };
         }
+
     } catch (error) {
         console.log(error);
         return null;
@@ -90,6 +91,7 @@ const getUserService = async () => {
         return null;
     }
 }
+
 module.exports = {
     createUserService, loginService, getUserService
 }
